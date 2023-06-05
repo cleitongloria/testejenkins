@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cleiton-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cleiton-api
+  template:
+    metadata:
+      labels:
+        app: cleiton-api
+    spec:
+      containers:
+      - image: cleiton/cleiton-api:latest
+        name: cleiton-api
+        ports:
+          - containerPort: 8080
