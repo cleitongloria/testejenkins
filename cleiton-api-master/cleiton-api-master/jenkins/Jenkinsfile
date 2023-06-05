@@ -23,7 +23,7 @@ pipeline {
         stage('Apply Kubernetes files') {
             steps {
                 withKubeConfig([credentialsId: 'kind-cluster-config', serverUrl: 'https://127.0.0.1:35433']) {
-                  sh 'kubectl apply -f k8s'
+                  sh 'kubectl apply -f teste'
                   sh 'kubectl rollout restart deployment cleiton-api'
                 }
             }
