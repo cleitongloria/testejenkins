@@ -8,24 +8,28 @@ pipeline {
     stages {
         stage('Build') {
             agent {
-                docker { image 'maven' }
+                docker {
+                    image 'maven'
+                    args '-v /root/.m2:/root/.m2' // Monta o diretório .m2 do host para acelerar builds subsequentes
+                }
             }
             steps {
-                sh "mvn package -Dmaven.test.skip=true"
                 script {
+                    sh "mvn package -Dmaven.test.skip=true"
                     pom = readMavenPom file: 'pom.xml'
                     POM_VERSION = pom.version
                 }
-                stash 'source'
+                stash name: 'source', includes: 'target/**' // Arquiva apenas a pasta 'target'
             }
         }
 
         stage('Apply Kubernetes files') {
+            environment {
+                KUBECONFIG = '/root/.kube/config' // Define o local do arquivo kubeconfig
+            }
             steps {
-                withKubeConfig([credentialsId: 'kind-cluster-config', serverUrl: 'https://127.0.0.1:35433']) {
-                  sh 'kubectl apply -f teste'
-                  sh 'kubectl rollout restart deployment cleiton-api'
-                }
+                sh 'kubectl apply -f teste'
+                sh 'kubectl rollout restart deployment cleiton-api'
             }
         }
     }
